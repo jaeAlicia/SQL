@@ -48,4 +48,102 @@ AND orderid <> 'Order ID';
 SELECT Product, SUM(quantity)
 FROM BIT_DB.FebSales
 WHERE location like '%Los Angeles%'
-GROUP BY Product
+GROUP BY Product;
+************************************************************************************************************
+--For this project, I downloaded Spotify data from Kaggle--
+--Then I created a table to insert Spotify data into--
+--Finally, I performed analytics on the data using SQL--
+
+CREATE TABLE BIT_DB.Spotifydata (
+id integer PRIMARY KEY,
+artist_name varchar NOT NULL,
+track_name varchar NOT NULL,
+track_id varchar NOT NULL,
+popularity integer NOT NULL,
+danceability decimal(4,3) NOT NULL,
+energy decimal(4,3) NOT NULL,
+song_key integer NOT NULL,
+loudness decimal(5,3) NOT NULL,
+song_mode integer NOT NULL,
+speechiness decimal(5,4) NOT NULL,
+acousticness decimal(6,5) NOT NULL,
+instrumentalness decimal(8,7) NOT NULL,
+liveness decimal(5,4) NOT NULL,
+valence decimal(4,3) NOT NULL,
+tempo decimal(6,3) NOT NULL,
+duration_ms integer NOT NULL,
+time_signature integer NOT NULL )
+
+--Then I inserted the Spotify Data .csv into the table--
+--Next, I explored the data using the following SQL--
+
+--Analyze the average loudness, speechiness, liveness, and time signature by artist and track--
+SELECT artist_name, track_name,AVG(loudness),AVG(speechiness), AVG(liveness),AVG(time_signature)
+FROM BIT_DB.SpotifyData
+GROUP BY artist_name,track_name;
+
+--Top 3 artist by danceability--
+SELECT artist_name, track_name
+FROM BIT_DB.SpotifyData
+ORDER BY danceability desc
+LIMIT 3;
+************************************************************************************************************************
+--Show only customers from Brazil.--
+SELECT *
+FROM chinook.customers
+WHERE country="Brazil";
+
+--Provide a query that shows the invoices associated with each sales agent. The resulting table should i nclude the Sales Agent's full name.--
+SELECT emp.LastName, emp.Firstname, inv.InvoiceId
+FROM chinook.Employees emp
+JOIN chinook.Customers cust ON cust.SupportRepId = emp.EmployeeId
+JOIN chinook.Invoices Inv ON Inv.CustomerId = cust.CustomerId;
+
+--Write a query that includes the purchased track name AND artist name wih each invoice line ID.--
+SELECT t.Name, i.InvoiceLineId
+FROM chinook.Invoice_items i
+JOIN chinook.Tracks t
+ON i.TrackId = t.TrackId;
+
+--Which sales agent made the most dollars in sales in 2009?-- 
+SELECT emp.FirstName, emp.LastName,
+ROUND(SUM(Inv.Total), 2) as 'Total Sales' 
+FROM chinook.Employees emp
+
+JOIN chinook.Customers cust 
+ON cust.SupportRepId = emp.EmployeeId
+
+JOIN chinook.Invoices Inv 
+ON Inv.CustomerId = cust.CustomerId;
+
+WHERE emp.Title = 'Sales Support Agent' 
+AND Inv.InvoiceDate LIKE '2009%' 
+GROUP BY emp.FirstName
+ORDER BY (round(sum(Inv.Total), 2))  DESC LIMIT 1;
+
+--Show customers (thier full name, customer ID, and country) who are not in Canada--
+SELECT FirstName, LastName, CustomerId, Country
+FROM chinook.customers
+WHERE Country != "Canada";
+
+-- Show the Invoice Total, Billing Address, Billing State, and Billing Country for all invoices and customers.--
+SELECT emp.BillingAddress, emp.BillingState, cust.BillingAddress, cust.BillingState, cust.Country, inv.total
+FROM chinook.Employees emp
+JOIN chinook.Customers cust ON cust.SupportRepId - emp.EmployeeId
+JOIN chinook.Invoices Inv ON Inv.CustomerId = cust.CustomerId;
+
+--Which sales agent made the least dollars in sales in 2009?--
+SELECT emp.FirstName, emp.LastName,
+ROUND(Min(Inv.Total), 2) as 'Total Sales'
+FROM chinook.Employees emp
+
+JOIN chinook.Customers cust
+ON cust.SupportRepId = emp.EmployeeId
+
+JOIN chinook.Invoices Inv
+ON Inv.CustomerId = cust.CustomerId;
+
+WHERE emp.Title = 'Sales Support Agent'
+AND Inv.InvoiceDate LIKE '2009%'
+GROUP BY emp.FirstName
+ORDER BY (round(min(Inv.Total), 2)) DESC LIMIT 1;
